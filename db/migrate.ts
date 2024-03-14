@@ -1,7 +1,23 @@
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { migrate } from "drizzle-orm/node-postgres/migrator";
+import { drizzle } from "drizzle-orm/node-postgres";
+import pg from "pg";
 
-import { db } from './db';
+const run = async () => {
+    const client = new pg.Client({
+        host: "127.0.0.1",
+        port: 5432,
+        user: "postgres",
+        password: "password",
+        database: "postgres",
+    });
 
-// This will run migrations on the database, skipping the ones already applied
-await migrate(db, { migrationsFolder: './drizzle' });
-process.exit();
+    await client.connect();
+
+    const db = drizzle(client);
+
+    await migrate(db, { migrationsFolder: "db/drizzle" });
+
+    await client.end();
+};
+
+run();
